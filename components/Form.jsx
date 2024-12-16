@@ -39,6 +39,18 @@ export default function FormComponent({state}) {
         }
 
         setErrors(newErrors);
+        console.log(errors)
+    }
+
+    const redirectScreen = () => {
+        console.log(Object.keys(errors).length)
+        if (Object.keys(errors).length === 0) { // Periksa jika tidak ada error
+            if (state === 'login') {
+                navigation.navigate("Home");
+            } else {
+                navigation.navigate("Login");
+            }
+        }
     }
 
     return(
@@ -113,13 +125,7 @@ export default function FormComponent({state}) {
 
             {/* <View style={{flex:1}}/>  Object.keys(newErrors).length === 0 && state==='login'? navigation.navigate("Home") : navigation.navigate("Login")*/}
             <TouchableOpacity onPress={()=> {
-               if (Object.keys(newErrors).length === 0) { // Periksa jika tidak ada error
-                    if (state === 'login') {
-                        navigation.navigate("Home");
-                    } else {
-                        navigation.navigate("Login");
-                    }
-                }  
+                 redirectScreen()
             }} style={{alignItems: 'center', backgroundColor:'teal', width: '100%', borderRadius:5, paddingVertical:15, marginBottom:10, ...(state === 'login' && { marginTop: 100 })}}> 
                 <Text style={[styles.topupText, {color:'#fff'}]}>
                     {state === 'login'? "Login" : "Register"}
