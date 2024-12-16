@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
+export default function HomeScreen() {
+  const navigation = useNavigation()
   return (
     <SafeAreaView>
     <View style={styles.container}>
@@ -13,7 +15,7 @@ export default function App() {
         <View style={{flex: 1}}>
             
         </View>
-        <Image source={require('./assets/sun-svgrepo-com.svg')} style={{width: 40, height: 40}}></Image>
+        <Image source={require('../assets/sun-svgrepo-com.svg')} style={{width: 40, height: 40}}></Image>
       </View>
       <View style={{flexDirection: 'row', elevation: 2, paddingHorizontal: 20, display: 'flex', alignItems: 'center', width: '100%', paddingVertical:35}}>
         <View style={{width:250}}>
@@ -24,7 +26,7 @@ export default function App() {
             
         </View>
         <View>
-            <Image source={require('./assets/Group.png')} style={{width:80, height:80}}></Image>
+            <Image source={require('../assets/Group.png')} style={{width:80, height:80}}></Image>
         </View>
       </View>
       <View style={{backgroundColor:"teal", height:37, width:'90%', borderRadius:10, flexDirection:'row', justifyContent:'space-between', alignItems:'center', paddingHorizontal:20}}>
@@ -36,15 +38,15 @@ export default function App() {
             <Text style={styles.teks14}>Balance</Text>
             <View style={{flexDirection:'row', alignItems:'center'}}>
                 <Text style={{fontWeight:600, fontSize:24, width:160}}>Rp 10.000.000</Text>
-                <Image source={require('./assets/eye.svg')} style={{width:19, height:11}}></Image>
+                <Image source={require('../assets/eye.svg')} style={{width:19, height:11}}></Image>
             </View>
         </View>
         <View style={{justifyContent:'space-between'}}>
-            <TouchableOpacity onPress={()=> console.log('Button Plus Pressed')} style={[styles.addSendButton, {marginBottom:15}]}> 
-                <Image source={require('./assets/plus.svg')} style={styles.addSendIcon}></Image>
+            <TouchableOpacity onPress={()=> navigation.navigate('TopUp')} style={[styles.addSendButton, {marginBottom:15}]}> 
+                <Image source={require('../assets/plus.svg')} style={styles.addSendIcon}></Image>
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=> console.log('Button Send Pressed')} style={styles.addSendButton}> 
-                <Image source={require('./assets/send.svg')} style={styles.addSendIcon}></Image>
+            <TouchableOpacity onPress={()=> navigation.navigate('Transfer')} style={styles.addSendButton}> 
+                <Image source={require('../assets/send.svg')} style={styles.addSendIcon}></Image>
             </TouchableOpacity>
         </View>
       </View>

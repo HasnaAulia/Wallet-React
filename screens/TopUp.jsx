@@ -1,32 +1,42 @@
-import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TextInput ,TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
+export default function TopUpScreen() {
+    const navigation = useNavigation()
     return(
         <SafeAreaView style={{flex:1}}>
             <View style={styles.container}>
             <View style={styles.navBar}>
-                <TouchableOpacity onPress={()=> console.log('Button Back Pressed')} style={{alignItems: 'center'}}> 
-                    <Image source={require('./assets/back.svg')} style={{width:10, height:16}}></Image>
+                <TouchableOpacity onPress={()=> navigation.goBack()} style={{alignItems: 'center'}}> 
+                    <Image source={require('../assets/back.svg')} style={{width:10, height:16}}></Image>
                 </TouchableOpacity>
                 <Text style={[ styles.topupText, {color: 'black', marginLeft: 30}]}>TopUp</Text>
             </View>
             <View style={styles.box}>
                 <Text style={[styles.labels, {color:'#b3b3b3', marginBottom: 15}]}>Amount</Text>
-                <View style={{flexDirection:'row', alignItems:'flex-start'}}>
-                    <Text style={[styles.labels, {color:'black'}]}>IDR</Text>
-                    <Text style={{fontSize: 36, fontWeight:400}}>100.000</Text>
+                <View style={{flexDirection:'row', alignItems:'flex-start'}}
+                >
+                    <Text style={[styles.labels, {color:'black', borderColor:'transparent'}]}>IDR</Text>
+                    <TextInput 
+                        style={{fontSize: 36, fontWeight:400, width:'100%'}}
+                        keyboardType='numeric'
+                        placeholder='100.000'
+                    />
                 </View>
                 <View style={styles.line}></View>
             </View>
             <View style={[styles.box, {flexDirection:'row', justifyContent:'space-between', alignItems:'center'}]}>
                 <Text style={styles.labels}>BYOND Pay</Text>
                 <TouchableOpacity onPress={()=> console.log('Button Back Pressed')} style={{alignItems: 'center'}}> 
-                    <Image source={require('./assets/dropdown.svg')} style={{width:16, height:10}}></Image>
+                    <Image source={require('../assets/dropdown.svg')} style={{width:16, height:10}}></Image>
                 </TouchableOpacity>
             </View>
             <View style={[styles.box, {height:100}]}>
-                <Text style={[styles.labels, {color:'#b3b3b3'}]}>Notes</Text>
-                <View style={{flex:1}}></View>
+                <Text style={[styles.labels, {color:'#b3b3b3', marginBottom:10}]}>Notes</Text>
+                <TextInput 
+                    style={{ borderColor:'transparent', fontSize:16, fontWeight:400}}
+                    multiline={true}
+                    numberOfLines={4}></TextInput>
                 <View style={styles.line}></View>
             </View>
             <View style={{flex:1}}></View>
