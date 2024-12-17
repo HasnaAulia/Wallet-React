@@ -22,7 +22,8 @@ export default function TransferScreen() {
                     <Text style={[styles.labels, {color:'black'}]}>IDR</Text>
                     <TextInput 
                         style={{fontSize: 36, fontWeight:400, width:'100%'}}
-                        placeholder='100.000'                                
+                        placeholder='100.000'   
+                        keyboardType='numeric'                             
                     />
                 </View>
                 <View style={styles.line}></View>

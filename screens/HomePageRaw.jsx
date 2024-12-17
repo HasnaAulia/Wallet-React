@@ -2,6 +2,36 @@ import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, Saf
 import { useNavigation } from '@react-navigation/native';
 
 export default function HomeScreen() {
+  const [posts, setPost] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+  
+    useEffect(() => {
+      const getPosts = async () => {
+        try {
+          const data = await fetchPosts();
+          setPost(data);
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      getPosts();
+    }, []);
+    
+    if (loading) {
+      return <ActivityIndicator size='large' color='#000ff' style={styles.loader} />;
+    }
+  
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      );
+    }
   const navigation = useNavigation()
   return (
     <SafeAreaView>
@@ -109,6 +139,22 @@ export default function HomeScreen() {
         </View>
       </View>
     </View>
+    <View>
+        <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+            <View style={styles.postContainer}>
+                <Text style={styles.title}>{item.first_name}</Text>
+                <Text style={styles.body}>{item.last_name}</Text>
+                <Image
+                source={{ uri: item.avatar }}
+                style={{ width: 200, height: 200 }}
+                />
+            </View>
+            )}
+        />
+        </View>
     </SafeAreaView>
   );
 }

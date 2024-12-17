@@ -11,11 +11,13 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 function TabNavigator() {
+    const { user } = useAuth();
     return (
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -40,19 +42,29 @@ function TabNavigator() {
       </Tab.Navigator>
     );
   }
-``  
+  
 export default function App() {
+    const auth = useAuth();
   return (
+    <AuthProvider>
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Navigator>
+        {auth ? (
+            <Stack.Screen name="Home" component={HomeScreen} />
+        ) : (
+            <>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            </>
+        )}
+        {/* <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} /> */}
         <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         <Stack.Screen 
         name="Home"
         component={TabNavigator}
         options={{headerShown:false}}/>
-      </Stack.Navigator>
+    </Stack.Navigator>
     </NavigationContainer>
+    </AuthProvider>
   );
 }
 

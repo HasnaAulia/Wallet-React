@@ -1,9 +1,29 @@
 import { StyleSheet, Text, View, Image, ScrollView, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import transactionData from '../components/TransData';
+import { useEffect, useState } from 'react';
+import { transaction } from '../api/restAPI';
+import { ActivityIndicator } from 'react-native-web';
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { logout } from '../api/restAPI';
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
+    const navigation = useNavigation();
+    const [posts, setPost] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    // const { logout, setLogoutState } = useAuth();
+
+    const handleLogout = async () => {
+            try {
+                const {token} = await logout();
+                alert('Success', 'Logout successful');
+                navigation.navigate("Login");
+            } catch (error) {
+                console.log('Logout Error:', error.message);
+                alert('Error', error.message);
+            }
+        };
 
   const renderTransactionItem = ({ item }) => {
     const amountColor = item.amount.startsWith('-') ? 'red' : 'teal';
@@ -11,13 +31,13 @@ export default function HomeScreen() {
       <View style={styles.HistoryTransBox}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
-            source={{ uri: item.image }}
+            source={{ uri: 'https://i.pinimg.com/originals/b5/df/6e/b5df6e88db58a19e85ebec90898425cf.jpg' }}
             style={{ width: 30, height: 30, borderRadius: 50, marginRight: 10 }}
           />
           <View>
-            <Text style={styles.teks14}>{item.name}</Text>
-            <Text style={styles.teks12}>{item.type}</Text>
-            <Text style={styles.subText}>{item.date}</Text>
+            <Text style={styles.teks14}>{item.from_to}</Text>
+            <Text style={styles.teks12}>{item.type==='c'?'Transfer':'TopUp'}</Text>
+            <Text style={styles.subText}>{item.created_at}</Text>
           </View>
         </View>
         <View>
@@ -27,8 +47,24 @@ export default function HomeScreen() {
     );
   };
 
+
+    useEffect(() => {
+        const getPosts = async () => {
+            try {
+                const data = await transaction()
+                setPost(data)
+            } catch (error) {
+                setError(error.message);
+            } finally {
+              setLoading(false);
+            }
+        }
+        getPosts();
+    }, [])
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      
       {/* Navbar Absolute */}
       <View style={styles.navBar}>
         <Image
@@ -42,39 +78,25 @@ export default function HomeScreen() {
           <Text>Personal Account</Text>
         </View>
         <View style={{ flex: 1 }} />
-        <Image
-          source={require('../assets/sun-svgrepo-com.svg')}
-          style={{ width: 40, height: 40 }}
-        />
+        <Ionicons name='sunny-outline' size={30} color='orange'/>
+        <TouchableOpacity onPress={() => handleLogout()}>
+            <Ionicons name='log-out-outline' size={30} style={{marginLeft:10}}/>
+        </TouchableOpacity>
       </View>
 
       {/* Scrollable Content */}
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
-          <View
-            style={{
-              flexDirection: 'row',
-              elevation: 2,
-              paddingHorizontal: 20,
-              alignItems: 'center',
-              width: '100%',
-              paddingVertical: 35,
-              marginTop: 80, // Avoid overlap with navbar
-            }}
-          >
+          <View style={{ flexDirection: 'row', elevation: 2, alignItems: 'center', width: '90%', paddingVertical: 35, marginTop: 80 }}>
             <View style={{ width: 250 }}>
-              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>
-                Good Morning, Chelsea
-              </Text>
+              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>Good Morning, Chelsea</Text>
               <Text style={{ fontWeight: '400', fontSize: 16 }}>
                 Check all your incoming and outgoing transactions here
               </Text>
             </View>
-            <View style={{flex: 1}}>
-            
-            </View>
+            <View style={{ flex: 1 }} />
             <View>
-                <Image source={require('../assets/Group.png')} style={{width:80, height:80}}></Image>
+              <Image source={require('../assets/Group.png')} style={{ width: 80, height: 80 }} />
             </View>
           </View>
 
@@ -88,29 +110,27 @@ export default function HomeScreen() {
           <View style={styles.balanceBox}>
             <View>
               <Text style={styles.teks14}>Balance</Text>
-              <View style={{flexDirection:'row', alignItems:'center'}}>
-                <Text style={{fontWeight:600, fontSize:24, width:160}}>Rp 10.000.000</Text>
-                <Image source={require('../assets/eye.svg')} style={{width:19, height:11}}></Image>
-               </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={{ fontWeight: '600', fontSize: 24, width: 160 }}>Rp 10.000.000</Text>
+                <Ionicons name='eye-outline' size={20}/>
+              </View>
             </View>
-            <View style={{justifyContent:'space-between'}}>
-                <TouchableOpacity onPress={()=> navigation.navigate('TopUp')} style={[styles.addSendButton, {marginBottom:15}]}> 
-                    <Image source={require('../assets/plus.svg')} style={styles.addSendIcon}></Image>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=> navigation.navigate('Transfer')} style={styles.addSendButton}> 
-                    <Image source={require('../assets/send.svg')} style={styles.addSendIcon}></Image>
-                </TouchableOpacity>
+            <View style={{ justifyContent: 'space-between' }}>
+              <TouchableOpacity onPress={() => navigation.navigate('TopUp')} style={[styles.addSendButton, { marginBottom: 15 }]}>
+                <Ionicons name='add-outline' size={20} color='white'/>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Transfer')} style={styles.addSendButton}>
+                <Ionicons name='paper-plane-outline' size={20} color='white'/>
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* Transaction History */}
-          <View style={styles.transactionBox}>
-            <Text style={{ fontWeight: '700', fontSize: 16, textAlign: 'left' }}>
-              Transaction History
-            </Text>
-            <View style={[styles.line, {marginVertical: 10}]}/>
+        <View style={styles.transactionBox}>
+            <Text style={{ fontWeight: '700', fontSize: 16, textAlign: 'left' }}>Transaction History</Text>
+            <View style={[styles.line, { marginVertical: 10 }]} />
             <FlatList
-              data={transactionData}
+              data={posts}
               keyExtractor={(item) => item.id}
               renderItem={renderTransactionItem}
             />
@@ -137,7 +157,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   scrollView: {
-    // marginTop: 80, // Prevent content from overlapping navbar
     backgroundColor: '#fafbfd',
   },
   container: {
@@ -193,19 +212,19 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#939393',
   },
-  addSendIcon:{
+  addSendIcon: {
     width: 20,
-    height: 20
-  }, 
-  addSendButton:{
-    alignItems: 'center', 
-    backgroundColor:'teal', 
-    padding:10, 
-    borderRadius:10
+    height: 20,
   },
-  line:{
-    height: 1, 
-    backgroundColor: '#ccc', 
-    width: '100%'
+  addSendButton: {
+    alignItems: 'center',
+    backgroundColor: 'teal',
+    padding: 10,
+    borderRadius: 10,
+  },
+  line: {
+    height: 1,
+    backgroundColor: '#ccc',
+    width: '100%',
   },
 });
