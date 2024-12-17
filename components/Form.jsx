@@ -2,9 +2,11 @@ import React from 'react';
 import { useState } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, TextInput, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ModalComp from './Modal';
 
 export default function FormComponent({state}) {
     const navigation = useNavigation()
+    const [modalVisible, setModalVisible] = useState(false);
     
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
@@ -14,47 +16,50 @@ export default function FormComponent({state}) {
     const [isSelected, setSelection] = useState(false);
     const [errors, setErrors] = useState({});
 
-    let newErrors = {};
-
     const validate = () => {
+        let newErrors = {};
         // Todo: bikin validasi untuk name minimal 3 karakter, validasi format email
         // Validasi Email
         const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        if (!validEmail) {
-            newErrors.messageEmailError = 'Email Tidak Valid';
+        if (!validEmail && email.length != 0) {
+            newErrors.email = 'Email Tidak Valid';
         }
 
         // Validasi Password
         const validPassword = password.length > 7;
-        if (!validPassword) {
-            newErrors.messagePasswordError = 'Password harus lebih dari 7 karakter';
+        if (!validPassword && password.length != 0) {
+            newErrors.password = 'Password harus lebih dari 7 karakter';
         }
 
         // Validasi Nama (untuk state register)
         if (state === 'register') {
             const validName = name.length > 3;
-            if (!validName) {
-                newErrors.messageNameError = 'Nama harus lebih dari 3 karakter';
+            if (!validName && name.length != 0) {
+                newErrors.name = 'Nama harus lebih dari 3 karakter';
             }
         }
 
         setErrors(newErrors);
-        console.log(errors)
     }
 
     const redirectScreen = () => {
-        console.log(Object.keys(errors).length)
         if (Object.keys(errors).length === 0) { // Periksa jika tidak ada error
-            if (state === 'login') {
-                navigation.navigate("Home");
-            } else {
-                navigation.navigate("Login");
+            if (password.length != 0 && email.length != 0) {
+                if (state === 'login') {
+                    navigation.navigate("Home");
+                } else {
+                    if (name.length != 0) {
+                        navigation.navigate("Login");
+                    }
+                }
             }
         }
     }
 
     return(
         <SafeAreaView style={{ width:'100%', paddingHorizontal:20}}>
+            <ModalComp modalVisible={ modalVisible } setModalVisible={setModalVisible}>
+            </ModalComp>
             {state === 'register' &&
                 <TextInput
                     style={styles.input}
@@ -63,22 +68,21 @@ export default function FormComponent({state}) {
                     onChangeText={(text) => {setName(text), validate()}}
                 />
             }
-            {errors.messageNameError && (
-                    <Text style={styles.errorText}>{errors.messageNameError}</Text>
+            {errors.name && (
+                    <Text style={styles.errorText}>{errors.name}</Text>
             )}
 
             <TextInput 
                 onChangeText={(text) => {
-                    setEmail(text),
-                    validate()
+                    setEmail(text), validate()
                 }}
                 placeholder='Email'
                 style={styles.input}
                 autoCapitalize='none'
                 autoCorrect={false}
             />
-            {errors.messageEmailError && (
-                <Text style={styles.errorText}>{errors.messageEmailError}</Text>
+            {errors.email && (
+                <Text style={styles.errorText}>{errors.email}</Text>
             )}
 
             <TextInput 
@@ -91,8 +95,8 @@ export default function FormComponent({state}) {
                 autoCapitalize='none'
                 autoCorrect={false}
             />
-            {errors.messagePasswordError && (
-                <Text style={styles.errorText}>{errors.messagePasswordError}</Text>
+            {errors.password && (
+                <Text style={styles.errorText}>{errors.password}</Text>
             )}
 
             {state === 'register' && 
@@ -114,7 +118,7 @@ export default function FormComponent({state}) {
                 >
                     <View style={[styles.checkbox, isSelected && styles.checkedCheckbox]} />
                     <Text style={styles.label}>I agree to the 
-                        <TouchableOpacity onPress={()=> console.log('term and con Pressed')} > 
+                        <TouchableOpacity onPress={()=> setModalVisible(true)} > 
                         <Text style={{ color:'teal' }}>
                             Terms and Conditions
                         </Text>
@@ -133,7 +137,7 @@ export default function FormComponent({state}) {
             </TouchableOpacity>
             <Text style={{ textAlign:'left', width:'90%' }}>
             {state === 'login'? "Don’t have account?" : "Have an account?"} 
-                <TouchableOpacity onPress={()=> console.log('Register Pressed')} > 
+                <TouchableOpacity onPress={()=> navigation.navigate(state==='login'?'Register':'Login')} > 
                     <Text style={{ color:'teal' }}>
                         {state === 'login'? "Register Here" : "Login Here"} 
                     </Text>

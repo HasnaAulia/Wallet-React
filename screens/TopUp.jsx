@@ -1,8 +1,24 @@
 import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TextInput ,TouchableOpacity } from 'react-native';
+import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 export default function TopUpScreen() {
+    const [dropdownVisible, setDropdownVisible] = useState(false);
+    const [selectedOption, setSelectedOption] = useState('BYOND Pay'); // Default option
+    const options = ['BYOND Pay', 'OVO', 'Gopay', 'DANA'];
     const navigation = useNavigation()
+
+
+    const toggleDropdown = () => {
+        setDropdownVisible(!dropdownVisible);
+    };
+    
+    const selectOption = (option) => {
+        setSelectedOption(option);
+        setDropdownVisible(false);
+    };
+
+
     return(
         <SafeAreaView style={{flex:1}}>
             <View style={styles.container}>
@@ -25,12 +41,21 @@ export default function TopUpScreen() {
                 </View>
                 <View style={styles.line}></View>
             </View>
-            <View style={[styles.box, {flexDirection:'row', justifyContent:'space-between', alignItems:'center'}]}>
-                <Text style={styles.labels}>BYOND Pay</Text>
-                <TouchableOpacity onPress={()=> console.log('Button Back Pressed')} style={{alignItems: 'center'}}> 
-                    <Image source={require('../assets/dropdown.svg')} style={{width:16, height:10}}></Image>
+            <View style={styles.box}>
+                <TouchableOpacity onPress={toggleDropdown} style={styles.dropdownHeader}>
+                    <Text style={styles.labels}>{selectedOption}</Text>
+                    <Image source={require('../assets/dropdown.svg')} style={{ width: 16, height: 10, transform: [{ rotate: dropdownVisible ? '180deg' : '0deg' }] }} />
                 </TouchableOpacity>
-            </View>
+                {dropdownVisible && (
+                    <View style={styles.dropdownList}>
+                    {options.map((option, index) => (
+                        <TouchableOpacity key={index} onPress={() => selectOption(option)} style={styles.dropdownItem}>
+                        <Text style={styles.dropdownText}>{option}</Text>
+                        </TouchableOpacity>
+                    ))}
+                    </View>
+                )}
+                </View>
             <View style={[styles.box, {height:100}]}>
                 <Text style={[styles.labels, {color:'#b3b3b3', marginBottom:10}]}>Notes</Text>
                 <TextInput 
@@ -82,5 +107,24 @@ const styles = StyleSheet.create({
     }, topupText:{
         fontWeight: 700, 
         fontSize:16,
-    }
+    }, dropdownHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+      dropdownList: {
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        backgroundColor: '#fff',
+        elevation: 2,
+    },
+      dropdownItem: {
+        padding: 10,
+    },
+      dropdownText: {
+        fontSize: 14,
+        color: '#333',
+    },
   });
