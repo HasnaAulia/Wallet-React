@@ -44,11 +44,17 @@ export default function FormComponent({state}) {
         // };
         // console.log('payload', payload);
         try {
-            const {token} = await login(email, password); // Await the response
+            const response = await login(email, password); // Await the response
+            const {token} = response.data
+
+            if(!token) throw new Error('token not found in response')
+            setLoginState(token); 
             console.log('Token:', token);
-            setLoginState(token);
+            
             alert('Success', 'Login successful');
-            navigation.navigate("Home");
+            navigation.navigate("Home")
+
+            return token
         } catch (error) {
             console.log('Login Error:', error.message);
             alert('Error', error.message);
@@ -66,46 +72,6 @@ export default function FormComponent({state}) {
           alert('Error', error.message);
         }
     };
-
-    // const validate = () => {
-    //     let newErrors = {};
-    //     // Todo: bikin validasi untuk name minimal 3 karakter, validasi format email
-    //     // Validasi Email
-    //     const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    //     if (!validEmail && email.length != 0) {
-    //         newErrors.email = 'Email Tidak Valid';
-    //     }
-
-    //     // Validasi Password
-    //     const validPassword = password.length > 7;
-    //     if (!validPassword && password.length != 0) {
-    //         newErrors.password = 'Password harus lebih dari 7 karakter';
-    //     }
-
-    //     // Validasi Nama (untuk state register)
-    //     if (state === 'register') {
-    //         const validName = name.length > 3;
-    //         if (!validName && name.length != 0) {
-    //             newErrors.name = 'Nama harus lebih dari 3 karakter';
-    //         }
-    //     }
-
-    //     setErrors(newErrors);
-    // }
-
-    // const redirectScreen = () => {
-    //     if (Object.keys(errors).length === 0) { // Periksa jika tidak ada error
-    //         if (password.length != 0 && email.length != 0) {
-    //             if (state === 'login') {
-    //                 navigation.navigate("Home");
-    //             } else {
-    //                 if (name.length != 0) {
-    //                     navigation.navigate("Login");
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     return(
         <SafeAreaView style={{ width:'100%', paddingHorizontal:20}}>

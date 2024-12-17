@@ -8,7 +8,6 @@ export default function  ModalComp({modalVisible, setModalVisible}) {
     <Modal 
         onRequestClose={() => setModalVisible(false)} //perintah menutup modal
         visible={modalVisible} // mengatur modal muncul
-        presentationStyle='pageSheet' // untuk mengatur tampilan modal (untuk ios aza)
         animationType="slide" // untuk mengatur animasi modal
         transparent={true} // untuk mengatur transparansi modal
         >

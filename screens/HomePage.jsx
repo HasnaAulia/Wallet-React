@@ -5,25 +5,34 @@ import { useEffect, useState } from 'react';
 import { transaction } from '../api/restAPI';
 import { ActivityIndicator } from 'react-native-web';
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { logout } from '../api/restAPI';
+import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen() {
+    const [accountData, setAccountData] = useState(null);
     const navigation = useNavigation();
     const [posts, setPost] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    // const { logout, setLogoutState } = useAuth();
+    const { user, logout } = useAuth();
 
+    const verifyTokenAfterLogout = async () => {
+        const token = await AsyncStorage.getItem('userToken');
+        console.log('Token after logout:', token); // Harusnya null atau undefined
+    };
+    
     const handleLogout = async () => {
-            try {
-                const {token} = await logout();
-                alert('Success', 'Logout successful');
-                navigation.navigate("Login");
-            } catch (error) {
-                console.log('Logout Error:', error.message);
-                alert('Error', error.message);
-            }
-        };
+        try {
+            await logout();
+            verifyTokenAfterLogout()
+            console.log("Logout successful");
+            navigation.navigate("Login");
+        } catch (error) {
+            console.error("Logout Error:", error.message);
+            alert("Logout Failed: " + error.message);
+        }
+    };
+
 
   const renderTransactionItem = ({ item }) => {
     const amountColor = item.amount.startsWith('-') ? 'red' : 'teal';
@@ -49,18 +58,25 @@ export default function HomeScreen() {
 
 
     useEffect(() => {
-        const getPosts = async () => {
+        const fetchData = async () => {
             try {
-                const data = await transaction()
-                setPost(data)
-            } catch (error) {
-                setError(error.message);
+                const token = await AsyncStorage.getItem('userToken');
+                if (!token) throw new Error('No token found');
+
+                const data = await fetchPosts(token);
+                console.log('sebelum fetch data')
+                console.log('Fetched Data:', data); // Log data untuk memeriksa struktur
+                setAccountData(data);
+            } catch (err) {
+                setError(err.message);
             } finally {
-              setLoading(false);
+                setLoading(false);
             }
-        }
-        getPosts();
-    }, [])
+        };
+
+        fetchData();
+    }, []);
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -74,12 +90,14 @@ export default function HomeScreen() {
           style={{ width: 46, height: 46, borderRadius: 50 }}
         />
         <View style={{ marginLeft: 20 }}>
-          <Text style={{ color: 'black', fontWeight: '700' }}>Andika</Text>
+          <Text style={{ color: 'black', fontWeight: '700' }}>{accountData?.full_name}</Text>
           <Text>Personal Account</Text>
         </View>
         <View style={{ flex: 1 }} />
         <Ionicons name='sunny-outline' size={30} color='orange'/>
-        <TouchableOpacity onPress={() => handleLogout()}>
+        <TouchableOpacity onPress={() => { 
+            handleLogout();
+        }}>
             <Ionicons name='log-out-outline' size={30} style={{marginLeft:10}}/>
         </TouchableOpacity>
       </View>
@@ -89,7 +107,7 @@ export default function HomeScreen() {
         <View style={styles.container}>
           <View style={{ flexDirection: 'row', elevation: 2, alignItems: 'center', width: '90%', paddingVertical: 35, marginTop: 80 }}>
             <View style={{ width: 250 }}>
-              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>Good Morning, Chelsea</Text>
+              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>Good Morning, {accountData?.full_name || 'No_Name'}</Text>
               <Text style={{ fontWeight: '400', fontSize: 16 }}>
                 Check all your incoming and outgoing transactions here
               </Text>
@@ -103,7 +121,7 @@ export default function HomeScreen() {
           {/* Account Info */}
           <View style={styles.accountBox}>
             <Text style={{ color: '#fff', fontSize: 16 }}>Account No.</Text>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>100899</Text>
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>{user?.account_no}</Text>
           </View>
 
           {/* Balance Info */}

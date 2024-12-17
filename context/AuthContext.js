@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.setItem('userToken', token)
   }
   const logout = async () => {
+    console.log('logout...')
     setUser(null);
     await AsyncStorage.removeItem('userToken');
   };
