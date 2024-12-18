@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AuthContext = createContext(); //untuk membuat konteks yang memungkinkan data tertentu tersedia untuk seluruh komponen yang ada dalam hierarki
+const AuthContext = createContext(); 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -18,10 +18,6 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     console.log('logout...')
     setUser(null);
-    await AsyncStorage.removeItem('userToken');
-  };
-  const transaction = async () => {
-    setUser({token});
     await AsyncStorage.removeItem('userToken');
   };
   return (

@@ -46,6 +46,7 @@ export default function TopUpScreen() {
           console.log('Top-up successful:', response);
           alert('Top-up successful!');
           navigation.goBack(); // Navigate back after success
+          setRefresh(true)
         } catch (error) {
             if (error.response) {
                 console.error("API Error Data:", error.response.data);

@@ -38,11 +38,7 @@ export default function FormComponent({state}) {
     };
     
     const handleLogin = async (email, password) => {
-        // const payload = {
-        //     email: email,
-        //     password: password
-        // };
-        // console.log('payload', payload);
+ 
         try {
             const response = await login(email, password); // Await the response
             const {token} = response.data
@@ -120,8 +116,8 @@ export default function FormComponent({state}) {
                 <TextInput
                     style={styles.input}
                     placeholder='Avatar URL'
-                    // value={avatarURL}
-                    onChangeText={setAvatarURL}
+                    value={avatarURL}
+                    onChangeText={(text) => {setAvatarURL(text)}}
                     autoCorrect={false}
                     inputMode='numeric'
                     autoCapitalize='none'
@@ -145,6 +141,7 @@ export default function FormComponent({state}) {
             }
 
             {/* <View style={{flex:1}}/>  Object.keys(newErrors).length === 0 && state==='login'? navigation.navigate("Home") : navigation.navigate("Login")*/}
+            
             <TouchableOpacity 
                 onPress={() => (state === 'login' ? handleSubmitLogin() : handleSubmitRegister())}
                 style={{alignItems: 'center', backgroundColor:'teal', width: '100%', borderRadius:5, paddingVertical:15, marginBottom:10, ...(state === 'login' && { marginTop: 100 })}}> 

@@ -19,10 +19,29 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.hasnaauliarz.bsides24"
     },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android":{
+            "usesCleartextTraffic": true
+          },
+          "ios": {
+            "flipper": true
+          }
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1d128e39-102a-4f0a-b000-5eafb698dc55"
+      }
     }
   }
 }

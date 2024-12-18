@@ -16,7 +16,7 @@ const api = axios.create({
 export const fetchPosts = async () => {
     const token = await AsyncStorage.getItem('userToken')
    
-//    console.log(token);
+    // console.log(token);
     if (!token) {
         throw new Error('Token expired or not found');
     }
@@ -39,7 +39,7 @@ export const fetchPosts = async () => {
 export const fetchTransaction = async () => {
     const token = await AsyncStorage.getItem('userToken')
    
-//    console.log(token);
+    // console.log(token);
     if (!token) {
         throw new Error('Token expired or not found');
     }
@@ -77,15 +77,6 @@ export const postsTransaction = async (payload) => {
       throw new Error(error.response?.data?.error||'Transaction Failed');
     }
   };
-
-// export const transaction = async () => {
-//     try {
-//         const response = await api.get('/transaction');
-//         return response.data.data;
-//     } catch (error) {
-//         throw new Error('Failed to fetch posts: ' + error.message);
-//     }
-// }
 
 export const createPost = async (postData) => {
     try {

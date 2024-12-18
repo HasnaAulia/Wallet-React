@@ -35,6 +35,7 @@ export default function TransferScreen() {
               console.log('Transfer successful:', response);
               alert('Transfer successful!');
               navigation.goBack(); // Navigate back after success
+              setRefresh(true)
             } catch (error) {
                 if (error.response) {
                     console.error("API Error Data:", error.response.data);

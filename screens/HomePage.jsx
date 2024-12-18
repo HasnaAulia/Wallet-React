@@ -22,24 +22,8 @@ export default function HomeScreen() {
     const [avatar, setAvatar] = useState("");
     const [accountNo, setAccountNo] = useState("");
     const [balance, setBalance] = useState(0)
-
-    // const [fromTo, setFromTo] = useState([])
-    // const [transactionType, setTransactionType] = useState([])
-    // const [description, setDescription] = useState([])
-    // const [amount, setAmount] = useState([])
     const [transaction, setTransaction] = useState([])
-  
-//     const fetchUserData = useCallback(async () => {
-//       const response = await fetchPosts();
-      
-//       const data = response.data;
-//   console.log(response);
-//       setFullName(data.full_name);
-//       setFirstName(data.full_name.split(" ")[0]);
-//       setAccountNo(data.account_no);
-//       setBalance(data.balance);
-//       setAvatar(data.avatar_url);
-//     }, []);
+
     const fetchUser = async() => {
      
      try {
@@ -65,8 +49,6 @@ export default function HomeScreen() {
     };
   
     useEffect(() => {
-    //   fetchUserData();
-    //   fetchTransactionsData();
       fetchUser();
       fetchTransactionsData();
     }, [refresh]);
@@ -112,28 +94,6 @@ export default function HomeScreen() {
       </View>
     );
   };
-
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const token = await AsyncStorage.getItem('userToken');
-    //             if (!token) throw new Error('No token found');
-
-    //             const data = await fetchPosts(token);
-                
-    //             console.log('Fetched Data:', data); // Log data untuk memeriksa struktur
-    //             setAccountData(data);
-    //         } catch (err) {
-    //             setError(err.message);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, []);
-
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
