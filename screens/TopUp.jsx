@@ -1,12 +1,18 @@
 import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TextInput ,TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { postsTransaction } from '../api/restAPI';
+import { useAuth } from '../context/AuthContext';
 
 export default function TopUpScreen() {
     const [dropdownVisible, setDropdownVisible] = useState(false);
     const [selectedOption, setSelectedOption] = useState('BYOND Pay'); // Default option
+    const [amount, setAmount] = useState('');
+    const [notes, setNotes] = useState('');
     const options = ['BYOND Pay', 'OVO', 'Gopay', 'DANA'];
     const navigation = useNavigation()
+    const {refresh, setRefresh} = useAuth()
+    const [type, setType] = useState('c')
 
 
     const toggleDropdown = () => {
@@ -18,6 +24,42 @@ export default function TopUpScreen() {
         setDropdownVisible(false);
     };
 
+    const handleTopUp = async () => {
+        console.log('Top-up initiated.');
+        setRefresh(false)
+        if (!amount || parseInt(amount) <= 0) {
+          alert('Please enter a valid amount.');
+          return;
+        }
+    
+        const payload = {
+          type: type, // Always "d" for debit in a top-up
+          from_to: selectedOption, // Payment method (e.g., BYOND Pay, OVO, etc.)
+          amount: parseInt(amount),
+          description: notes || 'No description', // Default if no notes
+        };
+
+        console.log('payload', payload)
+    
+        try {
+          const response = await postsTransaction(payload)
+          console.log('Top-up successful:', response);
+          alert('Top-up successful!');
+          navigation.goBack(); // Navigate back after success
+        } catch (error) {
+            if (error.response) {
+                console.error("API Error Data:", error.response.data);
+                console.error("API Status Code:", error.response.status);
+                alert("Top-up failed: " + error.response.data.message);
+            } else {
+                console.error("Unexpected Error:", error.message);
+                alert("Top-up failed: " + error.message);
+            }
+        } finally{
+            setRefresh(true)
+        }
+      };
+    
 
     return(
         <SafeAreaView style={{flex:1}}>
@@ -37,6 +79,8 @@ export default function TopUpScreen() {
                         style={{fontSize: 36, fontWeight:400, width:'100%'}}
                         keyboardType='numeric'
                         placeholder='100.000'
+                        onChangeText={(text) => setAmount(text)}
+                        value={amount}
                     />
                 </View>
                 <View style={styles.line}></View>
@@ -61,11 +105,13 @@ export default function TopUpScreen() {
                 <TextInput 
                     style={{ borderColor:'transparent', fontSize:16, fontWeight:400}}
                     multiline={true}
-                    numberOfLines={4}></TextInput>
+                    numberOfLines={4}
+                    onChangeText={(text) => setNotes(text)}
+                    value={notes}></TextInput>
                 <View style={styles.line}></View>
             </View>
             <View style={{flex:1}}></View>
-            <TouchableOpacity onPress={()=> console.log('Button Back Pressed')} style={{alignItems: 'center', backgroundColor:'teal', width: '90%', borderRadius:5, paddingVertical:15, marginBottom:20}}> 
+            <TouchableOpacity onPress={handleTopUp} style={{alignItems: 'center', backgroundColor:'teal', width: '90%', borderRadius:5, paddingVertical:15, marginBottom:20}}> 
                 <Text style={[styles.topupText, {color:'#fff'}]}>Top Up</Text>
             </TouchableOpacity>
             </View>

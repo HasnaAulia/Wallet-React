@@ -5,6 +5,7 @@ const AuthContext = createContext(); //untuk membuat konteks yang memungkinkan d
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [refresh, setRefresh] = useState(false)
 
   const login = async (token) => {
     setUser({ token });
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     await AsyncStorage.removeItem('userToken');
   };
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, transaction }}>
+    <AuthContext.Provider value={{ user, login, logout, register, transaction, refresh, setRefresh }}>
       {children}
     </AuthContext.Provider>
   );

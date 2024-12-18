@@ -1,12 +1,13 @@
 import { StyleSheet, Text, View, Image, ScrollView, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import transactionData from '../components/TransData';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { transaction } from '../api/restAPI';
 import { ActivityIndicator } from 'react-native-web';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuth } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchPosts, fetchTransaction } from '../api/restAPI';
 
 export default function HomeScreen() {
     const [accountData, setAccountData] = useState(null);
@@ -14,7 +15,61 @@ export default function HomeScreen() {
     const [posts, setPost] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const { user, logout } = useAuth();
+    const { user, logout,refresh } = useAuth();
+
+    const [fullName, setFullName] = useState("");
+    const [accountType, setAccountType] = useState("Personal Account");
+    const [avatar, setAvatar] = useState("");
+    const [accountNo, setAccountNo] = useState("");
+    const [balance, setBalance] = useState(0)
+
+    // const [fromTo, setFromTo] = useState([])
+    // const [transactionType, setTransactionType] = useState([])
+    // const [description, setDescription] = useState([])
+    // const [amount, setAmount] = useState([])
+    const [transaction, setTransaction] = useState([])
+  
+//     const fetchUserData = useCallback(async () => {
+//       const response = await fetchPosts();
+      
+//       const data = response.data;
+//   console.log(response);
+//       setFullName(data.full_name);
+//       setFirstName(data.full_name.split(" ")[0]);
+//       setAccountNo(data.account_no);
+//       setBalance(data.balance);
+//       setAvatar(data.avatar_url);
+//     }, []);
+    const fetchUser = async() => {
+     
+     try {
+        const {full_name, account_no, balance} = await fetchPosts();
+        setFullName(full_name)
+        setAccountNo(account_no)
+        setBalance(balance)
+        // const data = await fetchTransaction()
+        // console.log('data transaksi',data)
+     } catch (error) {
+        console.log(error);
+     }   
+    }    
+
+    const fetchTransactionsData = async () => {
+      try {
+        const data = await fetchTransaction();
+        console.log('Fetched Transactions:', data)
+        setTransaction(data)
+      } catch (error) {
+        console.log(error);
+      }
+    };
+  
+    useEffect(() => {
+    //   fetchUserData();
+    //   fetchTransactionsData();
+      fetchUser();
+      fetchTransactionsData();
+    }, [refresh]);
 
     const verifyTokenAfterLogout = async () => {
         const token = await AsyncStorage.getItem('userToken');
@@ -23,6 +78,7 @@ export default function HomeScreen() {
     
     const handleLogout = async () => {
         try {
+            verifyTokenAfterLogout()
             await logout();
             verifyTokenAfterLogout()
             console.log("Logout successful");
@@ -35,7 +91,8 @@ export default function HomeScreen() {
 
 
   const renderTransactionItem = ({ item }) => {
-    const amountColor = item.amount.startsWith('-') ? 'red' : 'teal';
+    const amountColor = item.type === 'd' ? 'red' : 'teal';
+    const amountPrefix = item.type === 'd' ? '- ' : '+ ';
     return (
       <View style={styles.HistoryTransBox}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -45,37 +102,37 @@ export default function HomeScreen() {
           />
           <View>
             <Text style={styles.teks14}>{item.from_to}</Text>
-            <Text style={styles.teks12}>{item.type==='c'?'Transfer':'TopUp'}</Text>
-            <Text style={styles.subText}>{item.created_at}</Text>
+            <Text style={styles.teks12}>{item.type==='c'?'Top Up':'Transfer'}</Text>
+            <Text style={styles.subText}>{item.description}</Text>
           </View>
         </View>
         <View>
-          <Text style={[styles.teks14, { color: amountColor }]}>{item.amount}</Text>
+          <Text style={[styles.teks14, { color: amountColor }]}>{amountPrefix}{item.amount}</Text>
         </View>
       </View>
     );
   };
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = await AsyncStorage.getItem('userToken');
-                if (!token) throw new Error('No token found');
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const token = await AsyncStorage.getItem('userToken');
+    //             if (!token) throw new Error('No token found');
 
-                const data = await fetchPosts(token);
-                console.log('sebelum fetch data')
-                console.log('Fetched Data:', data); // Log data untuk memeriksa struktur
-                setAccountData(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
+    //             const data = await fetchPosts(token);
+                
+    //             console.log('Fetched Data:', data); // Log data untuk memeriksa struktur
+    //             setAccountData(data);
+    //         } catch (err) {
+    //             setError(err.message);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-        fetchData();
-    }, []);
+    //     fetchData();
+    // }, []);
 
 
   return (
@@ -90,7 +147,7 @@ export default function HomeScreen() {
           style={{ width: 46, height: 46, borderRadius: 50 }}
         />
         <View style={{ marginLeft: 20 }}>
-          <Text style={{ color: 'black', fontWeight: '700' }}>{accountData?.full_name}</Text>
+          <Text style={{ color: 'black', fontWeight: '700' }}>{fullName}</Text>
           <Text>Personal Account</Text>
         </View>
         <View style={{ flex: 1 }} />
@@ -107,7 +164,7 @@ export default function HomeScreen() {
         <View style={styles.container}>
           <View style={{ flexDirection: 'row', elevation: 2, alignItems: 'center', width: '90%', paddingVertical: 35, marginTop: 80 }}>
             <View style={{ width: 250 }}>
-              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>Good Morning, {accountData?.full_name || 'No_Name'}</Text>
+              <Text style={{ fontWeight: '700', fontSize: 20, marginBottom: 10 }}>Good Morning, {fullName}</Text>
               <Text style={{ fontWeight: '400', fontSize: 16 }}>
                 Check all your incoming and outgoing transactions here
               </Text>
@@ -121,7 +178,7 @@ export default function HomeScreen() {
           {/* Account Info */}
           <View style={styles.accountBox}>
             <Text style={{ color: '#fff', fontSize: 16 }}>Account No.</Text>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>{user?.account_no}</Text>
+            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>{accountNo}</Text>
           </View>
 
           {/* Balance Info */}
@@ -129,7 +186,7 @@ export default function HomeScreen() {
             <View>
               <Text style={styles.teks14}>Balance</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ fontWeight: '600', fontSize: 24, width: 160 }}>Rp 10.000.000</Text>
+                <Text style={{ fontWeight: '600', fontSize: 24, width: 160 }}>Rp {balance}</Text>
                 <Ionicons name='eye-outline' size={20}/>
               </View>
             </View>
@@ -148,8 +205,8 @@ export default function HomeScreen() {
             <Text style={{ fontWeight: '700', fontSize: 16, textAlign: 'left' }}>Transaction History</Text>
             <View style={[styles.line, { marginVertical: 10 }]} />
             <FlatList
-              data={posts}
-              keyExtractor={(item) => item.id}
+              data={transaction}
+              keyExtractor={(item, index) => index.toString()}
               renderItem={renderTransactionItem}
             />
           </View>

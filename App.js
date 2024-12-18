@@ -32,7 +32,7 @@ function TabNavigator() {
             } 
             return <Ionicons name={iconName} size={size} color={'teal'} />;
           },
-          tabBarActiveTintColor: "#007AFF",
+          tabBarActiveTintColor: "teal",
           tabBarInactiveTintColor: "gray",
         })}
       >

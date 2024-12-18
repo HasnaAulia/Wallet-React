@@ -1,8 +1,54 @@
 import { StyleSheet, Text, View, Image, ImageBackground, ScrollView, Button, SafeAreaView, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { postsTransaction } from '../api/restAPI';
 
 export default function TransferScreen() {
     const navigation = useNavigation()
+
+    const [amount, setAmount] = useState('');
+    const [notes, setNotes] = useState('');
+    const [recipient, setRecipient] = useState('');
+    const [type, setType] = useState('d')
+    const {refresh, setRefresh} = useAuth()
+
+    const handleTransfer = async () => {
+            console.log('Transfer initiated.');
+            setRefresh(false)
+            if (!amount || parseInt(amount) <= 0) {
+              alert('Please enter a valid amount.');
+              return;
+            }
+        
+            const payload = {
+              type: type, // Always "d" for debit in a top-up
+              from_to: recipient, // Payment method (e.g., BYOND Pay, OVO, etc.)
+              amount: parseInt(amount),
+              description: notes || 'No description', // Default if no notes
+            };
+    
+            console.log('payload', payload)
+        
+            try {
+              const response = await postsTransaction(payload)
+              console.log('Transfer successful:', response);
+              alert('Transfer successful!');
+              navigation.goBack(); // Navigate back after success
+            } catch (error) {
+                if (error.response) {
+                    console.error("API Error Data:", error.response.data);
+                    console.error("API Status Code:", error.response.status);
+                    alert("Transfer failed: " + error.response.data.message);
+                } else {
+                    console.error("Unexpected Error:", error.message);
+                    alert("Transfer failed: " + error.message);
+                }
+            } finally{
+                setRefresh(true)
+            }
+          };
+
     return(
         <SafeAreaView style={{flex:1}}>
             <View style={styles.container}>
@@ -12,9 +58,14 @@ export default function TransferScreen() {
                 </TouchableOpacity>
                 <Text style={[ styles.transferText, {color: 'black', marginLeft: 30}]}>Transfer</Text>
             </View>
-            <View style={{width:'100%', backgroundColor:'teal', flexDirection:'row', padding:20}}>
+            <View style={{width:'100%', backgroundColor:'teal', flexDirection:'row', padding:10, alignItems:'center'}}>
                 <Text style={[styles.labels, {color:'#fff', marginRight:10}]}>To:</Text>
-                <Text style={[styles.labels, {color:'#fff'}]}>9000008940208</Text>
+                <TextInput
+                    style={[styles.labels, {color:'#fff', backgroundColor:'transparent', margin:0}]}
+                    placeholder='Enter recipient account number'
+                    keyboardType='numeric'
+                    onChangeText={(text) => setRecipient(text)}
+                    value={recipient}/>
             </View>
             <View style={styles.box}>
                 <Text style={[styles.labels, {color:'#b3b3b3', marginBottom: 15}]}>Amount</Text>
@@ -23,7 +74,9 @@ export default function TransferScreen() {
                     <TextInput 
                         style={{fontSize: 36, fontWeight:400, width:'100%'}}
                         placeholder='100.000'   
-                        keyboardType='numeric'                             
+                        keyboardType='numeric'
+                        onChangeText={(text) => setAmount(text)}
+                        value={amount}
                     />
                 </View>
                 <View style={styles.line}></View>
@@ -38,11 +91,13 @@ export default function TransferScreen() {
                     style={{ borderColor:'transparent', fontSize:16, fontWeight:400}}
                     multiline
                     numberOfLines={4}
+                    onChangeText={(text) => setNotes(text)}
+                    value={notes}
                 />
                 <View style={styles.line}></View>
             </View>
             <View style={{flex:1}}></View>
-            <TouchableOpacity onPress={()=> console.log('Button Back Pressed')} style={{alignItems: 'center', backgroundColor:'teal', width: '90%', borderRadius:5, paddingVertical:15, marginBottom:20}}> 
+            <TouchableOpacity onPress={handleTransfer} style={{alignItems: 'center', backgroundColor:'teal', width: '90%', borderRadius:5, paddingVertical:15, marginBottom:20}}> 
                 <Text style={[styles.transferText, {color:'#fff'}]}>Transfer</Text>
             </TouchableOpacity>
             </View>

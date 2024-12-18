@@ -1,5 +1,6 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useState } from "react";
 
 const token = AsyncStorage.getItem('userToken')
 console.log(token)
@@ -14,31 +15,68 @@ const api = axios.create({
 
 export const fetchPosts = async () => {
     const token = await AsyncStorage.getItem('userToken')
+   
+//    console.log(token);
     if (!token) {
         throw new Error('Token expired or not found');
     }
-    console.log('Calling API with token:', token);
+    // console.log('Calling API with token:', token);
 
     try {
         const response = await api.get('/users/me', {
-            method: 'GET',
+            // method: 'GET',
             headers: {
              Authorization: 'Bearer ' + token
             } 
          });
-
-         console.log('API Response:', response);
-         if (!response.ok) {
-            throw new Error('Failed to fetch user data')
-         }
-
-        const data = await response.json();
-        console.log('Fetched Data:', data);
+        // console.log('Fetched Data:', response.data.data);
         return response.data.data;
     } catch (error) {
         throw new Error('Failed to fetch posts: ' + error.message);
     }
 }
+
+export const fetchTransaction = async () => {
+    const token = await AsyncStorage.getItem('userToken')
+   
+//    console.log(token);
+    if (!token) {
+        throw new Error('Token expired or not found');
+    }
+    // console.log('Calling API with token:', token);
+
+    try {
+        const response = await api.get('/transactions', {
+            // method: 'GET',
+            headers: {
+             Authorization: 'Bearer ' + token
+            } 
+         });
+        // console.log('Fetched Data:', response.data.data);
+        return response.data.data;
+    } catch (error) {
+        throw new Error('Failed to fetch posts: ' + error.message);
+    }
+}
+
+export const postsTransaction = async (payload) => {
+    const token = await AsyncStorage.getItem('userToken')
+    // if (!token) {
+    // throw new Error("No token found, user might not be logged in.");
+    // }
+    // console.log(token)
+    try {
+      const response = await api.post('/transactions', payload, {
+        headers: {
+            Authorization: 'Bearer ' + token
+        }
+      })
+      return response.data;
+    } catch (error) {
+        console.log('errorrr', error)
+      throw new Error(error.response?.data?.error||'Transaction Failed');
+    }
+  };
 
 // export const transaction = async () => {
 //     try {
